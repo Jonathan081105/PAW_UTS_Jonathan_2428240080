@@ -1,0 +1,548 @@
+{
+  "info": {
+    "_postman_id": "a9b8c7d6-e5f4-3210-fedc-ba9876543210",
+    "name": "PAW_UTS_Agent_Bus",
+    "description": "Pengujian Otomatis RESTful API Sistem Agent Bus - UTS PAW II (NIM: 2428240080)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Entity Pendukung (Bus)",
+      "item": [
+        {
+          "name": "C1 - Create Bus",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const uniqueBus = 'BUS-' + Math.floor(1000 + Math.random() * 9000);",
+                  "pm.variables.set('uniqueBusCode', uniqueBus);"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const res = pm.response.json();",
+                  "pm.test('Response has valid kode and nama', function () {",
+                  "    pm.expect(res).to.have.property('kode');",
+                  "    pm.expect(res.kode).to.eql(pm.variables.get('uniqueBusCode'));",
+                  "    pm.expect(res).to.have.property('nama');",
+                  "});",
+                  "if (res._id) {",
+                  "    pm.environment.set('busId', res._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kode\": \"{{uniqueBusCode}}\",\n  \"nama\": \"Kramat Djati Super Executive\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/bus",
+              "host": ["{{base_url}}"],
+              "path": ["bus"]
+            }
+          }
+        },
+        {
+          "name": "C1 - Read All Buses",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const res = pm.response.json();",
+                  "pm.test('Response is an array of buses', function () {",
+                  "    pm.expect(Array.isArray(res)).to.be.true;",
+                  "    pm.expect(res.length).to.be.greaterThan(0);",
+                  "});",
+                  "if (res.length > 0 && !pm.environment.get('busId')) {",
+                  "    pm.environment.set('busId', res[0]._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/bus",
+              "host": ["{{base_url}}"],
+              "path": ["bus"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Entity Utama (Tiket)",
+      "item": [
+        {
+          "name": "C1 - Create Tiket",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const uniqueTiket = 'TKT-' + Math.floor(10000 + Math.random() * 90000);",
+                  "pm.variables.set('uniqueTiketCode', uniqueTiket);"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const res = pm.response.json();",
+                  "pm.test('Response has valid properties', function () {",
+                  "    pm.expect(res).to.have.property('kodeTiket');",
+                  "    pm.expect(res).to.have.property('namaPenumpang');",
+                  "    pm.expect(res).to.have.property('harga');",
+                  "    pm.expect(res).to.have.property('rute');",
+                  "    pm.expect(res.rute).to.have.property('asal');",
+                  "    pm.expect(res.rute).to.have.property('tujuan');",
+                  "    pm.expect(res.rute._id).to.be.undefined;",
+                  "});",
+                  "if (res._id) {",
+                  "    pm.environment.set('tiketId', res._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kodeTiket\": \"{{uniqueTiketCode}}\",\n  \"namaPenumpang\": \"Rian Pratama\",\n  \"harga\": 300000,\n  \"status\": \"terjadwal\",\n  \"rute\": {\n    \"asal\": \"Palembang\",\n    \"tujuan\": \"Solo\"\n  },\n  \"bus\": \"{{busId}}\",\n  \"fieldLain\": \"diabaikan\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/tiket",
+              "host": ["{{base_url}}"],
+              "path": ["tiket"]
+            }
+          }
+        },
+        {
+          "name": "C2 - Read All Tiket",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const res = pm.response.json();",
+                  "pm.test('Response is an array of tikets', function () {",
+                  "    pm.expect(Array.isArray(res)).to.be.true;",
+                  "    pm.expect(res.length).to.be.greaterThan(0);",
+                  "});",
+                  "if (res.length > 0 && !pm.environment.get('tiketId')) {",
+                  "    pm.environment.set('tiketId', res[0]._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tiket",
+              "host": ["{{base_url}}"],
+              "path": ["tiket"]
+            }
+          }
+        },
+        {
+          "name": "C3 - Filter Tiket by Status (Match)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const res = pm.response.json();",
+                  "pm.test('All returned tikets have matching status', function () {",
+                  "    pm.expect(Array.isArray(res)).to.be.true;",
+                  "    res.forEach(item => {",
+                  "        pm.expect(item.status).to.eql('terjadwal');",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tiket?status=terjadwal",
+              "host": ["{{base_url}}"],
+              "path": ["tiket"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "terjadwal"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "C3 - Filter Tiket by Status (No Match returns [])",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const res = pm.response.json();",
+                  "pm.test('Returns empty array', function () {",
+                  "    pm.expect(Array.isArray(res)).to.be.true;",
+                  "    pm.expect(res.length).to.eql(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tiket?status=bukanstatus",
+              "host": ["{{base_url}}"],
+              "path": ["tiket"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "bukanstatus"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "C3 - Sort Tiket by Harga (Ascending)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const res = pm.response.json();",
+                  "pm.test('Tikets sorted ascending by harga', function () {",
+                  "    for (let i = 0; i < res.length - 1; i++) {",
+                  "        pm.expect(res[i].harga).to.be.at.most(res[i + 1].harga);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tiket?sort=harga",
+              "host": ["{{base_url}}"],
+              "path": ["tiket"],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "harga"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "C3 - Combined Filter and Sort",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const res = pm.response.json();",
+                  "pm.test('Tikets filtered and sorted', function () {",
+                  "    res.forEach(item => pm.expect(item.status).to.eql('terjadwal'));",
+                  "    for (let i = 0; i < res.length - 1; i++) {",
+                  "        pm.expect(res[i].harga).to.be.at.most(res[i + 1].harga);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tiket?status=terjadwal&sort=harga",
+              "host": ["{{base_url}}"],
+              "path": ["tiket"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "terjadwal"
+                },
+                {
+                  "key": "sort",
+                  "value": "harga"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "C4 - Read Tiket by ID with Populate",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const res = pm.response.json();",
+                  "pm.test('Bus is populated with kode and nama', function () {",
+                  "    pm.expect(res.bus).to.be.an('object');",
+                  "    pm.expect(res.bus).to.have.property('kode');",
+                  "    pm.expect(res.bus).to.have.property('nama');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tiket/{{tiketId}}",
+              "host": ["{{base_url}}"],
+              "path": ["tiket", "{{tiketId}}"]
+            }
+          }
+        },
+        {
+          "name": "C4 - Read Tiket by Non-existent ID (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "const res = pm.response.json();",
+                  "pm.test('Message indicates not found', function () {",
+                  "    pm.expect(res).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tiket/654321000000000000000000",
+              "host": ["{{base_url}}"],
+              "path": ["tiket", "654321000000000000000000"]
+            }
+          }
+        },
+        {
+          "name": "C4 - Read Tiket by Invalid ID Format (400 CastError)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "const res = pm.response.json();",
+                  "pm.test('Message without model name', function () {",
+                  "    pm.expect(res).to.have.property('message');",
+                  "    pm.expect(res.message).to.eql('Format ID tidak valid');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tiket/invalid-id-format",
+              "host": ["{{base_url}}"],
+              "path": ["tiket", "invalid-id-format"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Pengujian Error Handling (A3)",
+      "item": [
+        {
+          "name": "A3 - Route Not Found (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "pm.test('Message property exists', function () {",
+                  "    pm.expect(pm.response.json()).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/rute-tidak-ada",
+              "host": ["{{base_url}}"],
+              "path": ["rute-tidak-ada"]
+            }
+          }
+        },
+        {
+          "name": "A3 - Schema Violation (400 ValidationError)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "const res = pm.response.json();",
+                  "pm.test('Detail errors array returned', function () {",
+                  "    pm.expect(res.message).to.eql('Data tidak valid');",
+                  "    pm.expect(res.detail).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"harga\": -5000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/tiket",
+              "host": ["{{base_url}}"],
+              "path": ["tiket"]
+            }
+          }
+        },
+        {
+          "name": "A3 - Duplicate Key (409 Conflict)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 409', function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "pm.test('Message property exists', function () {",
+                  "    pm.expect(pm.response.json()).to.have.property('message');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kode\": \"BUS-01\",\n  \"nama\": \"Duplikat Sinar Jaya\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/bus",
+              "host": ["{{base_url}}"],
+              "path": ["bus"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
