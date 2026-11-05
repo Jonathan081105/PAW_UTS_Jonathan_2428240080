@@ -1,0 +1,28 @@
+{
+  "name": "uts-paw2-2428240080",
+  "version": "1.0.0",
+  "description": "RESTful API Sistem Agent Bus - UTS Pengembangan Aplikasi Web II",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "seed": "node seed.js"
+  },
+  "keywords": [
+    "express",
+    "mongoose",
+    "rest-api",
+    "agent-bus"
+  ],
+  "author": "Jonathan Immanuel A. (2428240080)",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^5.0.1",
+    "mongoose": "^8.9.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
